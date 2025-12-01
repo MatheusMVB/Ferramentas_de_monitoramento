@@ -1,0 +1,47 @@
+Teste 0%
+=== Métricas extraídas ===
+Total de Frames Processados: 54 frames
+Total de Retransmissões TCP: 0 eventos
+Retransmissões por Frame (média): 0.000 retrans/frame
+Tempo total de rede da aplicação: 7682.262 ms
+Tempo total de rede (segundos): 7.682 s
+==========================
+
+Teste 0.1%
+=== Métricas extraídas ===
+Total de Frames Processados: 55 frames
+Total de Retransmissões TCP: 41 eventos
+Retransmissões por Frame (média): 0.745 retrans/frame
+Tempo total de rede da aplicação: 7813.754 ms
+Tempo total de rede (segundos): 7.814 s
+==========================
+
+Teste 1%
+=== Métricas extraídas ===
+Total de Frames Processados: 54 frames
+Total de Retransmissões TCP: 459 eventos
+Retransmissões por Frame (média): 8.500 retrans/frame
+Tempo total de rede da aplicação: 7841.041 ms
+Tempo total de rede (segundos): 7.841 s
+==========================
+
+Teste 3%
+=== Métricas extraídas ===
+Total de Frames Processados: 27 frames
+Total de Retransmissões TCP: 833 eventos
+Retransmissões por Frame (média): 30.852 retrans/frame
+Tempo total de rede da aplicação: 8947.298 ms
+Tempo total de rede (segundos): 8.947 s
+==========================
+
+Teste 5%
+=== Métricas extraídas ===
+Total de Frames Processados: 10 frames
+Total de Retransmissões TCP: 607 eventos
+Retransmissões por Frame (média): 60.700 retrans/frame
+Tempo total de rede da aplicação: 10211.298 ms
+Tempo total de rede (segundos): 10.211 s
+==========================
+
+
+

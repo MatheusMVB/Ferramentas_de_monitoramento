@@ -1,0 +1,33 @@
+Teste 0%
+=== Análise de Segmentos TCP ===
+Segundos com conexão ativa: 12 segundos
+Total de segmentos RECEBIDOS (iseg): 3042000 segmentos
+Total de segmentos ENVIADOS   (oseg): 6095700 segmentos
+
+Teste 0.1%
+=== Análise de Segmentos TCP ===
+Segundos com conexão ativa: 14 segundos
+Total de segmentos RECEBIDOS (iseg): 3073100 segmentos
+Total de segmentos ENVIADOS   (oseg): 6211700 segmentos
+
+Teste 1%
+=== Análise de Segmentos TCP ===
+Segundos com conexão ativa: 12 segundos
+Total de segmentos RECEBIDOS (iseg): 3079900 segmentos
+Total de segmentos ENVIADOS   (oseg): 6097000 segmentos
+
+Teste 3%
+=== Análise de Segmentos TCP ===
+Segundos com conexão ativa: 11 segundos
+Total de segmentos RECEBIDOS (iseg): 1616787 segmentos
+Total de segmentos ENVIADOS   (oseg): 3047894 segmentos
+
+
+Teste 5%
+=== Análise de Segmentos TCP ===
+Segundos com conexão ativa: 12 segundos
+Total de segmentos RECEBIDOS (iseg): 635400 segmentos
+Total de segmentos ENVIADOS   (oseg): 1134600 segmentos
+
+
+

@@ -1,0 +1,22 @@
+
+=== Análise de Segmentos TCP ===
+Segundos com conexão ativa: 12 segundos
+Total de segmentos RECEBIDOS (iseg): 635400 segmentos
+Total de segmentos ENVIADOS   (oseg): 1134600 segmentos
+Total agregado (enviados + recebidos): 1770000 segmentos
+
+Momentos onde houve tráfego TCP:
+→ 19:54:20
+→ 19:54:21
+→ 19:54:22
+→ 19:54:23
+→ 19:54:24
+→ 19:54:25
+→ 19:54:26
+→ 19:54:27
+→ 19:54:28
+→ 19:54:29
+→ 19:54:30
+→ 19:54:31
+===============================
+

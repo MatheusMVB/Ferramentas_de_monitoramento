@@ -1,0 +1,141 @@
+import pandas as pd
+import re
+from datetime import datetime
+import numpy as np # Adicionado para uso em fillna e correlação
+
+# --- Configuração dos Nomes dos Arquivos ---
+CSV_FILE = 'offloading (3).csv'
+TXT_FILE = 'outretrans0.txt'
+
+def processar_csv(file_path):
+    """
+    Carrega o arquivo CSV, extrai a hora (HH:MM:SS) e a coluna networkTime.
+    """
+    try:
+        # Carrega o arquivo com separador de espaço/tabulação, conforme o formato da imagem
+        df = pd.read_csv(file_path, sep='\s+', engine='python')
+    except Exception as e:
+        print(f"Erro ao carregar o CSV com sep='\\s+': {e}. Tentando com separador padrão (vírgula).")
+        df = pd.read_csv(file_path)
+
+    # CORREÇÃO CRÍTICA: Remove espaços em branco (leading/trailing) dos nomes das colunas
+    df.columns = df.columns.str.strip() 
+    
+    # Verifica se a coluna 'time' existe após a limpeza
+    if 'time' not in df.columns:
+        print(f"Erro: A coluna 'time' não foi encontrada após a limpeza de nomes das colunas. Colunas encontradas: {df.columns.tolist()}")
+        return pd.DataFrame() # Retorna um DataFrame vazio se a coluna não for encontrada
+
+    # Função para extrair apenas a hora (HH:MM:SS) do timestamp completo
+    def extrair_hora_completa(timestamp_str):
+        if pd.isna(timestamp_str):
+            return None
+        # A expressão regular busca o padrão HH:MM:SS
+        match = re.search(r'(\d{2}:\d{2}:\d{2})', str(timestamp_str))
+        if match:
+            return match.group(1)
+        return None
+
+    # Aplica a função para criar uma nova coluna de hora
+    df['hora_segundo'] = df['time'].apply(extrair_hora_completa)
+
+    # Seleciona as colunas relevantes
+    df_result = df[['hora_segundo', 'networkTime']].copy()
+
+    # Converte networkTime para um número float
+    df_result['networkTime'] = pd.to_numeric(df_result['networkTime'], errors='coerce')
+    
+    # Agrupa por hora e calcula a média do networkTime por segundo
+    df_agrupado = df_result.groupby('hora_segundo')['networkTime'].mean().reset_index()
+    df_agrupado.rename(columns={'networkTime': 'media_networkTime'}, inplace=True)
+    
+    return df_agrupado
+
+def processar_txt(file_path):
+    """
+    Carrega o arquivo TXT e conta o número de retransmissões por segundo (HH:MM:SS).
+    """
+    retransmissoes = {}
+    
+    with open(file_path, 'r') as f:
+        # Ignora as primeiras linhas de cabeçalho e info (3 primeiras linhas)
+        for i, line in enumerate(f):
+            if i >= 3 and line.strip(): # Começa a processar após o cabeçalho
+                try:
+                    # O primeiro elemento da linha é o timestamp (HH:MM:SS)
+                    hora = line.split()[0]
+                    
+                    # Conta a ocorrência para o respectivo segundo
+                    retransmissoes[hora] = retransmissoes.get(hora, 0) + 1
+                except IndexError:
+                    continue
+    
+    # Converte o dicionário de contagens para um DataFrame
+    df_retrans = pd.DataFrame(retransmissoes.items(), columns=['hora_segundo', 'contagem_retransmissoes'])
+    
+    return df_retrans
+
+def correlacionar_dados(df_csv, df_txt):
+    """
+    Combina os DataFrames do CSV e do TXT usando a coluna 'hora_segundo' como chave e 
+    calcula o Coeficiente de Correlação de Pearson.
+    """
+    # Merge (junção) dos DataFrames pela coluna de tempo
+    df_correlacionado = pd.merge(
+        df_csv, 
+        df_txt, 
+        on='hora_segundo', 
+        how='left' 
+    )
+    
+    # Preenche NaN (onde não houve retransmissão naquele segundo) com 0
+    df_correlacionado['contagem_retransmissoes'] = df_correlacionado['contagem_retransmissoes'].fillna(0).astype(int)
+
+    # Cálculo da Correlação de Pearson
+    # A junção 'left' pode criar NaNs na coluna 'media_networkTime' se houve falha na conversão
+    # de dados. Vamos garantir que não há NaNs para o cálculo.
+    df_numeric = df_correlacionado.replace([np.inf, -np.inf], np.nan).dropna(subset=['media_networkTime', 'contagem_retransmissoes'])
+    
+    if len(df_numeric) > 1:
+        correlacao = df_numeric['media_networkTime'].corr(df_numeric['contagem_retransmissoes'])
+    else:
+        correlacao = None
+    
+    return df_correlacionado, correlacao
+
+# --- Execução Principal (Comentada até que os arquivos sejam encontrados) ---
+# if __name__ == "__main__":
+#     print(f"Iniciando processamento dos arquivos '{CSV_FILE}' e '{TXT_FILE}'...")
+    
+#     # 1. Processar CSV (offloading)
+#     df_network_time = processar_csv(CSV_FILE)
+#     if df_network_time.empty:
+#         print("Falha no processamento do CSV. Abortando.")
+#     else:
+#         # 2. Processar TXT (retransmissões)
+#         df_retrans_count = processar_txt(TXT_FILE)
+        
+#         # 3. Correlacionar e calcular estatísticas
+#         df_final, correlacao = correlacionar_dados(df_network_time, df_retrans_count)
+        
+#         print("\n--- Resultado da Correlação (networkTime médio vs. Retransmissões por segundo) ---")
+#         print(df_final)
+        
+#         OUTPUT_FILE = 'correlacao_network_retrans.csv'
+#         df_final.to_csv(OUTPUT_FILE, index=False)
+#         print(f"\n✨ Resultado salvo em '{OUTPUT_FILE}'")
+        
+#         print("\n--- Coeficiente de Correlação de Pearson ---")
+#         if correlacao is not None:
+#             print(f"Coeficiente de Correlação: {correlacao:.4f}")
+#             print("\nInterpretação:")
+#             if correlacao > 0.7:
+#                 print("Correlação positiva forte. O aumento no tempo de rede está fortemente associado ao aumento das retransmissões.")
+#             elif correlacao < -0.7:
+#                 print("Correlação negativa forte. O aumento no tempo de rede está fortemente associado à diminuição das retransmissões.")
+#             elif abs(correlacao) > 0.3:
+#                 print("Correlação moderada. Há uma tendência, mas não é um relacionamento muito forte.")
+#             else:
+#                 print("Correlação fraca. Não há um relacionamento linear forte evidente.")
+#         else:
+#             print("Não foi possível calcular o coeficiente de correlação (dados insuficientes).")

@@ -1,0 +1,23 @@
+import pandas as pd
+import sys
+
+# --- 1. Ler CSV ---
+try:
+    df = pd.read_csv("offloading (3).csv", sep=None, engine="python")
+except FileNotFoundError:
+    print("❌ Arquivo offloading (3).csv não encontrado!", file=sys.stderr)
+    sys.exit(1)
+
+# --- 2. Se existir coluna time, converte para HH:MM:SS mantendo os vazios ---
+if "time" in df.columns:
+    df["time"] = pd.to_datetime(df["time"], errors="coerce").dt.strftime("%H:%M:%S").fillna("")
+
+# --- 3. Limita floats para no máximo 2 casas decimais ---
+for c in df.select_dtypes(include=["float"]).columns:
+    df[c] = df[c].round(2)
+
+# --- 4. Imprimir no formato tabulado (TSV) ---
+print("\t".join(df.columns))
+for _, row in df.iterrows():
+    print("\t".join("" if pd.isna(x) or str(x) == "nan" else str(x) for x in row))
+

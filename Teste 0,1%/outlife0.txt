@@ -1,0 +1,10 @@
+Attaching 3 probes...
+PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+0     swapper/11 ::1             8080  ::1             58100      0     0 6113
+409978 Chrome_Chi ::1             8080  ::1             58092      0     1 6113
+0     swapper/11 ::1             8080  ::1             58108      2     3 6082
+
+
+
+
+

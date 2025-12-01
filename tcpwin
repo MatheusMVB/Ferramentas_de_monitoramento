@@ -1,0 +1,35 @@
+#!/usr/local/bin/bpftrace
+/*
+ * tcpwin - Trace TCP send congestion window parameters with time monitoring.
+ * 
+ * Modified to include execution time monitoring.
+ * 
+ * 2025-01-29  User Request
+ */
+
+#include <net/sock.h>
+#include <linux/tcp.h>
+
+BEGIN
+{
+    printf("timestamp,event,sock,time_us,snd_cwnd,snd_ssthresh,sk_sndbuf,sk_wmem_queued\n");
+    @start_time = nsecs;
+}
+
+kprobe:tcp_rcv_established
+{
+    $sock = (struct sock *)arg0;
+    $tcps = (struct tcp_sock *)arg0; // see tcp_sk()
+    
+    //$elapsed_time = (nsecs - @start_time) / 1000; // Convertendo para microssegundos (us)
+    
+    printf("%llu,rcv,0x%llx,%llu,%d,%d,%d,%d\n",
+        nsecs / 1000,  // Timestamp em microssegundos
+        arg0,          // Endereço do socket
+        elapsed, // Tempo decorrido desde o início do script
+        $tcps->snd_cwnd, 
+        $tcps->snd_ssthresh, 
+        $sock->sk_sndbuf, 
+        $sock->sk_wmem_queued);
+}
+

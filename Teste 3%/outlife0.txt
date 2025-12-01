@@ -1,0 +1,10 @@
+Attaching 3 probes...
+PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+0     swapper/10 ::1             8080  ::1             59550      0     1 6110
+24    ksoftirqd/ ::1             8080  ::1             59554      0     0 6111
+0     swapper/2  ::1             8080  ::1             59570      2     3 6087
+
+
+
+
+

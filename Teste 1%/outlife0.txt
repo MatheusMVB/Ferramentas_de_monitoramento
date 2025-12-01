@@ -1,0 +1,10 @@
+Attaching 3 probes...
+PID   COMM       LADDR           LPORT RADDR           RPORT TX_KB RX_KB MS
+452979 Media      ::1             8080  ::1             59502      0     1 6106
+42    ksoftirqd/ ::1             8080  ::1             59510      0     0 6106
+0     swapper/8  ::1             8080  ::1             59524      2     3 10365
+
+
+
+
+

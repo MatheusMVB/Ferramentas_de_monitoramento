@@ -1,0 +1,7 @@
+
+=== Métricas extraídas ===
+Total de retransmissões TCP: 459 eventos
+Tempo total de rede da aplicação: 7841.041 ms
+Tempo total de rede (segundos): 7.841 s
+==========================
+

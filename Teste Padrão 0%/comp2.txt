@@ -1,0 +1,9 @@
+
+=== Métricas extraídas ===
+Total de Frames Processados: 54 frames
+Total de Retransmissões TCP: 0 eventos
+Retransmissões por Frame (média): 0.000 retrans/frame
+Tempo total de rede da aplicação: 7682.262 ms
+Tempo total de rede (segundos): 7.682 s
+==========================
+

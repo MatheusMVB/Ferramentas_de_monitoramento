@@ -1,0 +1,126 @@
+import re
+import sys
+import matplotlib.pyplot as plt
+
+def parse_tests(text):
+    tests = []
+    current = None
+
+    for line in text.splitlines():
+        line = line.strip()
+
+        # Detecta início de teste: "Teste 2%" ou "Teste 3%"
+        m_label = re.match(r"^Teste\s+([\d\.]+)\%?$", line, re.I)
+        if m_label:
+            if current:
+                tests.append(current)
+            current = {
+                "label": f"Teste {m_label.group(1)}%",
+                "frames": None,
+                "retrans": None,
+                "rpf": None,
+                "netms": None,
+            }
+            continue
+
+        if current is None:
+            continue
+
+        # Captura frames
+        m_frames = re.search(r"Total de Frames Processados:\s*(\d+)", line, re.I)
+        if m_frames:
+            current["frames"] = int(m_frames.group(1))
+
+        # Captura retransmissões totais
+        m_retrans = re.search(r"Total de Retransmissões TCP:\s*(\d+)", line, re.I)
+        if m_retrans:
+            current["retrans"] = int(m_retrans.group(1))
+
+        # Captura retrans/frame (média)
+        m_rpf = re.search(r"Retransmissões por Frame.*?:\s*([\d\.]+)", line, re.I)
+        if m_rpf:
+            current["rpf"] = float(m_rpf.group(1))
+
+        # Captura networkTime (ms)
+        m_netms = re.search(r"Tempo total de rede.*?:\s*([\d\.]+)\s*ms", line, re.I)
+        if m_netms:
+            current["netms"] = float(m_netms.group(1))
+
+    if current:
+        tests.append(current)
+
+    # Mantém apenas testes completos
+    return [
+        t for t in tests
+        if t["frames"] is not None and t["retrans"] is not None
+        and t["rpf"] is not None and t["netms"] is not None
+    ]
+
+# --- Ler o arquivo resultados.txt ---
+with open("resultados.txt", "r", encoding="utf-8", errors="ignore") as f:
+    text = f.read()
+
+tests = parse_tests(text)
+if not tests:
+    print("⚠️ Nenhum teste válido encontrado!", file=sys.stderr)
+    sys.exit(1)
+
+labels = [t["label"] for t in tests]
+frames = [t["frames"] for t in tests]
+retrans = [t["retrans"] for t in tests]
+rpf = [t["rpf"] for t in tests]
+netms = [t["netms"] for t in tests]
+
+x = range(len(labels))
+bar_width = 0.35
+
+# Aumenta o tamanho para comportar barras e legenda sem sobrepor
+plt.rcParams["figure.figsize"] = (10, 5)
+
+# ---------- 1º GRÁFICO ----------
+fig1, ax1 = plt.subplots()
+
+# Escala esquerda: Frames (cor 1)
+ax1.bar([p - bar_width/2 for p in x], frames, bar_width, label="Frames", color="tab:green")
+ax1.set_ylabel("Frames")
+
+# Escala direita: Retrans/frame média (cor 2)
+ax1_twin = ax1.twinx()
+ax1_twin.bar([p + bar_width/2 for p in x], rpf, bar_width*0.6, label="Retrans/Frame (média)", color="tab:purple")
+ax1_twin.set_ylabel("Retrans/frame")
+
+# Ajustes de ticks e título
+ax1.set_xticks(x)
+ax1.set_xticklabels(labels, rotation=30)
+ax1.set_title("Carga de trabalho vs Confiabilidade: Frames × Retrans/Frame")
+
+# Legenda fora das barras, no topo direito em espaço vazio
+ax1.legend(loc="upper right", bbox_to_anchor=(1, 1), frameon=True)
+
+plt.tight_layout()
+plt.show()
+
+
+# ---------- 2º GRÁFICO ----------
+fig2, ax2 = plt.subplots()
+
+# Escala esquerda: retransmissões totais (cor 3)
+ax2.bar([p - bar_width/2 for p in x], retrans, bar_width, label="Retrans Total", color="tab:blue")
+ax2.set_ylabel("Total de retransmissões")
+
+# Escala direita: tempo total de rede em ms (cor 4)
+ax2_twin = ax2.twinx()
+ax2_twin.bar([p + bar_width/2 for p in x], netms, bar_width, label="Tempo de Rede (ms)", color="tab:red")
+ax2_twin.set_ylabel("Tempo (ms)")
+
+# Ajustes
+ax2.set_xticks(x)
+ax2.set_xticklabels(labels, rotation=30)
+ax2.set_title("Custo agregado vs Confiabilidade: Tempo de Rede (ms) × Retrans Total")
+
+# Legenda fora da área das barras, abaixo do título
+ax2.legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), ncols=2, frameon=True)
+
+plt.tight_layout()
+plt.show()
+
